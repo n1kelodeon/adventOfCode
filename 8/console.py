@@ -12,9 +12,9 @@ class Console:
         self._instructions = []
         code = code.splitlines()
         for instruction in code:
-            re_result = re.search("(acc|jmp|nop) (\+|-)([0-9]+)", instruction)
+            re_result = re.search("(acc|jmp|nop) ((?:\+|-)[0-9]+)", instruction)
             operation = re_result.group(1)
-            argument = int(re_result.group(2) + re_result.group(3))
+            argument = int(re_result.group(2))
             self._instructions.append((operation, argument))
 
     def _set_program_counter(self, offset: int):
