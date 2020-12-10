@@ -8,12 +8,12 @@ class Bag:
         for i in range(amount):
             self.child_bags.append(bag)
 
-    def count_shiny_bags(self):
+    def count_shiny_gold_bags(self):
         count = 0
         for child_bag in self.child_bags:
             if child_bag.color == "shiny gold":
                 count += 1
-            count += child_bag.count_shiny_bags()
+            count += child_bag.count_shiny_gold_bags()
         return count
 
     def count_bags(self):
