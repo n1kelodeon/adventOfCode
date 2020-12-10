@@ -64,9 +64,12 @@ class Console:
     def fix_loop_and_run(self, code: str) -> int:
         self._parse_code(code)
         for i, (operation, argument) in enumerate(self._instructions):
-            if operation == "acc": continue
-            self._instructions[i] = (
-                "nop" if operation == "jmp" else "jmp", argument)
+            if operation == "jmp":
+                self._instructions[i] = ("nop", argument)
+            elif operation == "nop":
+                self._instructions[i] = ("jmp", argument)
+            else:
+                continue
             if self._execute_instructions(do_reset_state=True) == 0:
                 self._print_return_code(0)
                 return self._accumulator
