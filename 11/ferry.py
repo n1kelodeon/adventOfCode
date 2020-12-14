@@ -54,26 +54,26 @@ class Ferry:
                     if seat_layout[k][l] != ".":
                         seat.add_adjacent_seat(self._get_seat((k, l)))
 
-    def simulate_seating(self):
-        self.print_seat_layout()
-        old_seats = deepcopy(self._seats)
+    def simulate_seating(self, print_seat_layout=False):
+        if print_seat_layout:
+            self.print_seat_layout()
         update_count = 0
-        for seat in old_seats.values():
+        for seat in self._seats.values():
             adjacent_occupied_count = 0
             for adjacent_seat in seat.adjacent_seats.values():
-                if not adjacent_seat._is_empty:
+                if not adjacent_seat.is_empty:
                     adjacent_occupied_count += 1
             # occupy seat if there are no occupied adjacent seats
             if seat.is_empty:
                 if adjacent_occupied_count == 0:
-                    self._seats[seat.coordinates]._is_empty = False
+                    self._seats[seat.coordinates].is_empty_next = False
                     update_count += 1
             # free seat if four or more adjacent seats are occupied
             elif not seat.is_empty:
                 if adjacent_occupied_count >= 4:
-                    self._seats[seat.coordinates]._is_empty = True
+                    self._seats[seat.coordinates].is_empty_next = True
                     update_count += 1
-        print(update_count)
+        self.update_seat_states()
         if update_count > 0:
             return self.simulate_seating()
 
@@ -99,3 +99,7 @@ class Ferry:
                     row.append(".")
             print("".join(row))
         print("\n")
+
+    def update_seat_states(self):
+        for seat in self._seats.values():
+            seat.update_state()
