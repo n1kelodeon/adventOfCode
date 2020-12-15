@@ -7,10 +7,7 @@ class Ship:
     """
 
     def __init__(self):
-        self._orientation = 0
-        self._x = 0
-        self._y = 0
-        self._instructions = list()
+        self._reset()
 
     def _reset(self):
         self._orientation = 0
@@ -59,7 +56,7 @@ class Ship:
                 self._move_south(value)
             elif action == "E":
                 self._move_east(value)
-            elif action == "w":
+            elif action == "W":
                 self._move_west(value)
             elif action == "L":
                 self._change_orientation(value)
