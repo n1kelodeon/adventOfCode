@@ -7,6 +7,10 @@ class Ship:
     """
 
     def __init__(self):
+        self._orientation = None
+        self._x = None
+        self._y = None
+        self._instructions = None
         self._reset()
 
     def _reset(self):
