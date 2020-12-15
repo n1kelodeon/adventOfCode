@@ -1,4 +1,4 @@
-from ferry import Ferry
+from ferry import Ferry, Ferry2
 
 
 if __name__ == "__main__":
@@ -9,3 +9,8 @@ if __name__ == "__main__":
     ferry.simulate_seating()
     occupied_count = ferry.count_occupied_seats()
     print("Part 1:", occupied_count)
+
+    ferry2 = Ferry2(seat_layout)
+    ferry2.simulate_seating(occupied_seat_limit=5)
+    occupied_count = ferry2.count_occupied_seats()
+    print("Part 2:", occupied_count)

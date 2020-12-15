@@ -1,5 +1,4 @@
 from seat import Seat
-from copy import deepcopy
 
 
 class Ferry:
@@ -15,8 +14,11 @@ class Ferry:
             self._seats.update({coordinates: seat})
         return seat
 
-    def _get_adjacent_coords(
-        self, coordinates: tuple[int, int], dimensions: tuple[int, int]
+    def _get_adjacent_seat_coords(
+        self,
+        coordinates: tuple[int, int],
+        dimensions: tuple[int, int],
+        seat_layout: list[str],
     ) -> list[tuple[int, int]]:
         adjacent_coords = list()
         i, j = coordinates
@@ -39,7 +41,12 @@ class Ferry:
             adjacent_coords.append((i - 1, j + 1))
         if i < m - 1 and j > 0:
             adjacent_coords.append((i + 1, j - 1))
-        return adjacent_coords
+        adjacent_seat_coords = list()
+        # only return coords with seats
+        for k, l in adjacent_coords:
+            if seat_layout[k][l] != ".":
+                adjacent_seat_coords.append((k, l))
+        return adjacent_seat_coords
 
     def _init_seats(self, seat_layout):
         m, n = len(seat_layout), len(seat_layout[0])
@@ -49,12 +56,13 @@ class Ferry:
                 if seat_layout[i][j] == ".":
                     continue
                 seat = self._get_seat(coordinates=(i, j))
-                adjacent_coords = self._get_adjacent_coords((i, j), (m, n))
-                for k, l in adjacent_coords:
-                    if seat_layout[k][l] != ".":
-                        seat.add_adjacent_seat(self._get_seat((k, l)))
+                adjacent_seat_coords = self._get_adjacent_seat_coords(
+                    (i, j), (m, n), seat_layout
+                )
+                for k, l in adjacent_seat_coords:
+                    seat.add_adjacent_seat(self._get_seat((k, l)))
 
-    def simulate_seating(self, print_seat_layout=False):
+    def simulate_seating(self, print_seat_layout=False, occupied_seat_limit=4):
         if print_seat_layout:
             self.print_seat_layout()
         update_count = 0
@@ -66,16 +74,16 @@ class Ferry:
             # occupy seat if there are no occupied adjacent seats
             if seat.is_empty:
                 if adjacent_occupied_count == 0:
-                    self._seats[seat.coordinates].is_empty_next = False
+                    seat.is_empty_next = False
                     update_count += 1
             # free seat if four or more adjacent seats are occupied
             elif not seat.is_empty:
-                if adjacent_occupied_count >= 4:
-                    self._seats[seat.coordinates].is_empty_next = True
+                if adjacent_occupied_count >= occupied_seat_limit:
+                    seat.is_empty_next = True
                     update_count += 1
         self.update_seat_states()
         if update_count > 0:
-            return self.simulate_seating()
+            return self.simulate_seating(occupied_seat_limit=occupied_seat_limit)
 
     def count_occupied_seats(self):
         occupied_count = 0
@@ -103,3 +111,70 @@ class Ferry:
     def update_seat_states(self):
         for seat in self._seats.values():
             seat.update_state()
+
+
+class Ferry2(Ferry):
+    def _get_adjacent_seat_coords(
+        self,
+        coordinates: tuple[int, int],
+        dimensions: tuple[int, int],
+        seat_layout: list[str],
+    ) -> list[tuple[int, int]]:
+        adjacent_seat_coords = list()
+        m, n = dimensions
+        # left, right, up, down
+
+        i, j = coordinates
+        while i > 0:
+            i -= 1
+            if seat_layout[i][j] != ".":
+                adjacent_seat_coords.append((i, j))
+                break
+        i, j = coordinates
+        while i < m - 1:
+            i += 1
+            if seat_layout[i][j] != ".":
+                adjacent_seat_coords.append((i, j))
+                break
+        i, j = coordinates
+        while j > 0:
+            j -= 1
+            if seat_layout[i][j] != ".":
+                adjacent_seat_coords.append((i, j))
+                break
+        i, j = coordinates
+        while j < n - 1:
+            j += 1
+            if seat_layout[i][j] != ".":
+                adjacent_seat_coords.append((i, j))
+                break
+        # diagonals
+        i, j = coordinates
+        while i > 0 and j > 0:
+            i -= 1
+            j -= 1
+            if seat_layout[i][j] != ".":
+                adjacent_seat_coords.append((i, j))
+                break
+        i, j = coordinates
+        while i < m - 1 and j < n - 1:
+            i += 1
+            j += 1
+            if seat_layout[i][j] != ".":
+                adjacent_seat_coords.append((i, j))
+                break
+        i, j = coordinates
+        while i > 0 and j < n - 1:
+            i -= 1
+            j += 1
+            if seat_layout[i][j] != ".":
+                adjacent_seat_coords.append((i, j))
+                break
+        i, j = coordinates
+        while i < m - 1 and j > 0:
+            i += 1
+            j -= 1
+            if seat_layout[i][j] != ".":
+                adjacent_seat_coords.append((i, j))
+                break
+        return adjacent_seat_coords
