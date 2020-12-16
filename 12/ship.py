@@ -30,15 +30,17 @@ class Ship:
     def _rotate(self, angle):
         self._angle = (self._angle + angle) % 360
 
+    def _rotate_clockwise(self, angle):
+        self._rotate(-angle)
+
     def _move_forward(self, value):
-        if self._angle == 0:
-            self._move_east(value)
-        elif self._angle == 90:
-            self._move_north(value)
-        elif self._angle == 180:
-            self._move_west(value)
-        elif self._angle == 270:
-            self._move_south(value)
+        move = {
+            0: self._move_east,
+            90: self._move_north,
+            180: self._move_west,
+            270: self._move_south,
+        }
+        move[self._angle](value)
 
     def _move_north(self, value):
         self._y += value
@@ -53,21 +55,17 @@ class Ship:
         self._x -= value
 
     def _execute_instructions(self):
+        do_action = {
+            "N": self._move_north,
+            "S": self._move_south,
+            "E": self._move_east,
+            "W": self._move_west,
+            "L": self._rotate,
+            "R": self._rotate_clockwise,
+            "F": self._move_forward,
+        }
         for action, value in self._instructions:
-            if action == "N":
-                self._move_north(value)
-            elif action == "S":
-                self._move_south(value)
-            elif action == "E":
-                self._move_east(value)
-            elif action == "W":
-                self._move_west(value)
-            elif action == "L":
-                self._rotate(value)
-            elif action == "R":
-                self._rotate(-value)
-            elif action == "F":
-                self._move_forward(value)
+            do_action[action](value)
 
     def navigate(self, nav_instructions: list[str]):
         self._reset()
