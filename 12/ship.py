@@ -7,14 +7,14 @@ class Ship:
     """
 
     def __init__(self):
-        self._orientation = None
+        self._angle = None
         self._x = None
         self._y = None
         self._instructions = None
         self._reset()
 
     def _reset(self):
-        self._orientation = 0
+        self._angle = 0
         self._x = 0
         self._y = 0
         self._instructions = list()
@@ -27,17 +27,17 @@ class Ship:
             action, value = re.match("(N|S|E|W|L|R|F)([0-9]+)", instruction).groups()
             self._instructions.append((action, int(value)))
 
-    def _change_orientation(self, orientation):
-        self._orientation = (self._orientation + orientation) % 360
+    def _rotate(self, angle):
+        self._angle = (self._angle + angle) % 360
 
     def _move_forward(self, value):
-        if self._orientation == 0:
+        if self._angle == 0:
             self._move_east(value)
-        elif self._orientation == 90:
+        elif self._angle == 90:
             self._move_north(value)
-        elif self._orientation == 180:
+        elif self._angle == 180:
             self._move_west(value)
-        elif self._orientation == 270:
+        elif self._angle == 270:
             self._move_south(value)
 
     def _move_north(self, value):
@@ -63,9 +63,9 @@ class Ship:
             elif action == "W":
                 self._move_west(value)
             elif action == "L":
-                self._change_orientation(value)
+                self._rotate(value)
             elif action == "R":
-                self._change_orientation(-value)
+                self._rotate(-value)
             elif action == "F":
                 self._move_forward(value)
 
@@ -74,3 +74,53 @@ class Ship:
         self._parse_instructions(nav_instructions)
         self._execute_instructions()
         return self._calculate_manhatten_distance()
+
+
+class Ship2(Ship):
+    def __init__(self):
+        self._angle = None
+        self._x = None
+        self._y = None
+        self._waypoint_x_offset = None
+        self._waypoint_y_offset = None
+        self._instructions = None
+        self._reset()
+
+    def _reset(self):
+        self._angle = 0
+        self._x = 0
+        self._y = 0
+        self._waypoint_x_offset = 10
+        self._waypoint_y_offset = 1
+        self._instructions = list()
+
+    def _sin(self, angle):
+        sinus = {90: 1, 180: 0, 270: -1}
+        if angle < 0:
+            return -sinus[-angle]
+        return sinus[angle]
+
+    def _cos(self, angle):
+        cosinus = {90: 0, 180: -1, 270: 0}
+        return cosinus[abs(angle)]
+
+    def _rotate(self, angle):
+        x, y = self._waypoint_x_offset, self._waypoint_y_offset
+        self._waypoint_x_offset = x * self._cos(angle) - y * self._sin(angle)
+        self._waypoint_y_offset = x * self._sin(angle) + y * self._cos(angle)
+
+    def _move_forward(self, value):
+        self._x += value * self._waypoint_x_offset
+        self._y += value * self._waypoint_y_offset
+
+    def _move_north(self, value):
+        self._waypoint_y_offset += value
+
+    def _move_south(self, value):
+        self._waypoint_y_offset -= value
+
+    def _move_east(self, value):
+        self._waypoint_x_offset += value
+
+    def _move_west(self, value):
+        self._waypoint_x_offset -= value
