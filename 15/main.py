@@ -1,4 +1,4 @@
-from collections import defaultdict
+from collections import defaultdict, deque
 
 
 class MemoryGame:
@@ -8,7 +8,10 @@ class MemoryGame:
         self._reset()
 
     def _reset(self):
-        self._numbers = defaultdict(list)
+        # dictionary mapping each number to the two turns
+        # where they were spoken out loud most recently
+        self._numbers = defaultdict(lambda: deque(maxlen=2))
+        # the number which was spoken out lout most recently
         self._last_num = None
 
     def _init(self, starting_nums: list[int]):
@@ -17,18 +20,21 @@ class MemoryGame:
         self._last_num = list(self._numbers)[-1]
 
     def _calc_age(self, number: int):
-        return self._numbers[number][-1] - self._numbers[number][-2]
+        return self._numbers[number][1] - self._numbers[number][0]
 
     def _speak_aloud_number(self, number, turn):
         self._numbers[number].append(turn)
         self._last_num = number
 
+    def _create_queue(self):
+        return deque(maxlen=2)
+
     def play(self, starting_nums: list[int], limit: int) -> int:
         self._reset()
         self._init(starting_nums)
         for turn in range(len(self._numbers) + 1, limit + 1):
-            # check if last number was spoken for the first time
-            if self._numbers[self._last_num] == [turn - 1]:
+            # check if last number was spoken out loud for the first time
+            if len(self._numbers[self._last_num]) == 1:
                 self._speak_aloud_number(0, turn)
             else:
                 age = self._calc_age(self._last_num)
@@ -37,7 +43,7 @@ class MemoryGame:
 
 
 if __name__ == "__main__":
-    with open("15/input.txt", "r") as file:
+    with open("input.txt", "r") as file:
         starting_nums = [int(x) for x in file.read().split(",")]
 
     game = MemoryGame()
