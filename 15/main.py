@@ -43,3 +43,6 @@ if __name__ == "__main__":
     game = MemoryGame()
     last_num = game.play(starting_nums, limit=2020)
     print("Part 1:", last_num)
+
+    last_num = game.play(starting_nums, limit=30000000)
+    print("Part 2:", last_num)
