@@ -81,44 +81,6 @@ class Expression:
             )
 
 
-class Expression2(Expression):
-    def _parse(self, expression: str, is_root: bool):
-        if expression.isdigit():
-            self.value = int(expression)
-            return
-        if is_root:
-            expression = self._reverse_expression(expression)
-        depth = 0
-        for i, char in enumerate(expression):
-            if char == "(":
-                depth += 1
-            if char == ")":
-                depth -= 1
-            if char in ["+", "*"] and depth == 0:
-                if char == "+" and self._count_factors(expression) > 0:
-                    continue
-                self.operator = char
-                left_expression_str = self._remove_outer_parantheses(expression[:i])
-                right_expression_str = self._remove_outer_parantheses(
-                    expression[i + 1 :]
-                )
-                self.left_expression = Expression2(left_expression_str, is_root=False)
-                self.right_expression = Expression2(right_expression_str, is_root=False)
-                break
-
-    def _count_factors(self, expression: str):
-        depth = 0
-        factor_count = 0
-        for token in expression:
-            if token == "(":
-                depth += 1
-            elif token == ")":
-                depth -= 1
-            if token == "*" and depth == 0:
-                factor_count += 1
-        return factor_count
-
-
 def get_sum(expression_strings: list[str], is_part_2: bool) -> int:
     sum = 0
     for expression_str in expression_strings:
@@ -134,6 +96,3 @@ if __name__ == "__main__":
 
     print("Part 1:", get_sum(expression_strings, is_part_2=False))
     print("Part 2:", get_sum(expression_strings, is_part_2=True))
-
-
-# %%
